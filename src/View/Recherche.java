@@ -4,6 +4,10 @@
  */
 package View;
 
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author alla
@@ -38,8 +42,8 @@ public class Recherche extends javax.swing.JFrame {
         jPanel4 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jTextField2 = new javax.swing.JTextField();
+        airportNameTextField = new javax.swing.JTextField();
+        departureDateTextField = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -151,7 +155,13 @@ public class Recherche extends javax.swing.JFrame {
 
         jLabel1.setText("Aeroport Depart :");
 
-        jLabel2.setText("Date Depart");
+        jLabel2.setText("Date Depart :");
+
+        airportNameTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                airportNameTextFieldActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -164,8 +174,8 @@ public class Recherche extends javax.swing.JFrame {
                     .addComponent(jLabel1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 215, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 215, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(departureDateTextField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 215, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(airportNameTextField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 215, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(46, 46, 46))
         );
         jPanel4Layout.setVerticalGroup(
@@ -174,10 +184,10 @@ public class Recherche extends javax.swing.JFrame {
                 .addGap(25, 25, 25)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(airportNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(31, 31, 31)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(departureDateTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2))
                 .addContainerGap(38, Short.MAX_VALUE))
         );
@@ -243,8 +253,8 @@ public class Recherche extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-       jTextField1.setText("");
-        jTextField2.setText("");
+       airportNameTextField.setText("");
+        departureDateTextField.setText("");
        
     }//GEN-LAST:event_jButton2ActionPerformed
 
@@ -259,14 +269,28 @@ public class Recherche extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-       SearchTable searchTableFrame = new SearchTable();
-
-        // إظهار الواجهة الجديدة
+    
+          try {
+        String selectedAirport = airportNameTextField.getText();
+        String selectedDate = departureDateTextField.getText();
+        
+        // Call the loadDataIntoTable method from SearchTable class
+        SearchTable searchTableFrame = new SearchTable();
+        searchTableFrame.loadDataIntoTable(selectedDate, selectedAirport);
+        
+        // Show the new interface
         searchTableFrame.setVisible(true);
-
-        // إغلاق الواجهة الحالية
+        
+        // Close the current interface
         this.dispose();
+    } catch (SQLException ex) {
+        Logger.getLogger(Recherche.class.getName()).log(Level.SEVERE, null, ex);
+    }
     }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void airportNameTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_airportNameTextFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_airportNameTextFieldActionPerformed
 
     /**
      * @param args the command line arguments
@@ -304,6 +328,8 @@ public class Recherche extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField airportNameTextField;
+    private javax.swing.JTextField departureDateTextField;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
@@ -316,7 +342,5 @@ public class Recherche extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
     // End of variables declaration//GEN-END:variables
 }

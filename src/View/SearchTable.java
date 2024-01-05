@@ -4,19 +4,127 @@
  */
 package View;
 
+import com.mysql.jdbc.ResultSetMetaData;
+import java.awt.List;
+import java.awt.Toolkit;
+import java.awt.event.WindowEvent;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author alla
  */
 public class SearchTable extends javax.swing.JFrame {
 
+      String id;
+    String aeroportDepart;
+    String aeroportArrivee;
+    String dateDepart;
+    String dateArrivee;
+    String NombreEscale;
+    String escaleAeroportNom;   
+    Boolean Reservable;
+    String url = "jdbc:mysql://localhost:3306/gestiondesvols?characterEncoding=UTF-8";
+    String username = "root";
+    String password = "";
+
+    private String selectedDate;
+    private String selectedAirport;
+
+    
+    
+   private void updateTable() {
+
+    try {
+        Connection connection = DriverManager.getConnection(url, username, password);
+        String query = "SELECT * FROM vol"; // Replace with your actual table name
+        PreparedStatement statement = connection.prepareStatement(query);
+        ResultSet resultSet = statement.executeQuery();
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        model.setRowCount(0); // لحذف البيانات الحالية في الجدول
+        Iterable<Vol> vols = null;
+
+        for (Vol vol : vols) {
+            // قم بإضافة صف جديد للجدول باستخدام بيانات الرحلة
+            model.addRow(new Object[]{
+                    vol.getId(),
+                    vol.getDepartureAirport(),
+                    vol.getArrivalAirport(),
+                    vol.getDepartureDate(),
+                    vol.getArrivalDate(),
+                    vol.getNumberOfStops(),
+                    vol.getStopAirportName(),
+                    vol.isReservable()
+            });
+        }
+
+        jTable1.setModel(model);
+
+        resultSet.close();
+        statement.close();
+        connection.close();
+    } catch (SQLException ex) {
+        Logger.getLogger(SearchTable.class.getName()).log(Level.SEVERE, null, ex);
+    }
+}
+         
+    
     /**
      * Creates new form SearchTable
      */
-    public SearchTable() {
-        initComponents();
-    }
+   public SearchTable() throws SQLException {
+    initComponents();
 
+    // Load data into the table when the form is created
+    loadDataIntoTable(selectedDate, selectedAirport);
+    loadDataIntoTable(selectedDate, selectedAirport);
+}
+    
+
+   
+   void loadDataIntoTable(String selectedDate, String selectedAirport) {
+        try {
+        Connection connection = DriverManager.getConnection(url, username, password);
+        String query = "SELECT * FROM vol WHERE dateDepart = ? AND aeroportDepart = ?";
+        PreparedStatement statement = connection.prepareStatement(query);
+        statement.setString(1, selectedDate);
+        statement.setString(2, selectedAirport);
+
+        ResultSet resultSet = statement.executeQuery();
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        model.setRowCount(0);
+
+        ResultSetMetaData metaData = (ResultSetMetaData) resultSet.getMetaData();
+        int columnCount = metaData.getColumnCount();
+
+        while (resultSet.next()) {
+            Object[] rowData = new Object[columnCount];
+            for (int i = 1; i <= columnCount; i++) {
+                rowData[i - 1] = resultSet.getObject(i);
+            }
+            model.addRow(rowData);
+        }
+
+        jTable1.setModel(model);
+
+        resultSet.close();
+        statement.close();
+        connection.close();
+    } catch (SQLException ex) {
+        Logger.getLogger(SearchTable.class.getName()).log(Level.SEVERE, null, ex);
+    }
+}
+   
+   
+   
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -227,33 +335,6 @@ public class SearchTable extends javax.swing.JFrame {
 
     private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
 
-        int selectedRowIndex = jTable1.getSelectedRow();
-
-        // Check if a row is selected
-        if (selectedRowIndex >= 0) {
-            // Extract data from the selected row
-            id = jTable1.getValueAt(selectedRowIndex, 0).toString();
-            aeroportDepart = jTable1.getValueAt(selectedRowIndex, 1).toString();
-            aeroportArrivee = jTable1.getValueAt(selectedRowIndex, 2).toString();
-            dateDepart = jTable1.getValueAt(selectedRowIndex, 3).toString();
-            dateArrivee = jTable1.getValueAt(selectedRowIndex, 4).toString();
-            NombreEscale = jTable1.getValueAt(selectedRowIndex, 5).toString();
-            escaleAeroportNom = jTable1.getValueAt(selectedRowIndex, 6).toString();
-            Reservable = (Boolean) jTable1.getValueAt(selectedRowIndex, 7);
-
-            // Open the DetailsWindow with the extracted data
-            showDetailsWindow();
-        }
-        }
-
-        private void showDetailsWindow() {
-            // Create an instance of the DetailsWindow
-            DetailsWindow detailsWindow = new DetailsWindow(id, aeroportDepart, aeroportArrivee, dateDepart, dateArrivee, NombreEscale, escaleAeroportNom, Reservable);
-
-            // Display the DetailsWindow
-            detailsWindow.setVisible(true);
-
-            this.dispose();
     }//GEN-LAST:event_jTable1MouseClicked
 
     private void jTable1MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MousePressed
@@ -262,10 +343,10 @@ public class SearchTable extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-        Home homeFrame = new Home();
+        Recherche rechercheFrame = new Recherche();
 
         // إظهار الواجهة الجديدة
-        homeFrame.setVisible(true);
+        rechercheFrame.setVisible(true);
 
         // إغلاق الواجهة الحالية
         this.dispose();
@@ -342,7 +423,11 @@ public class SearchTable extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new SearchTable().setVisible(true);
+                try {
+                    new SearchTable().setVisible(true);
+                } catch (SQLException ex) {
+                    Logger.getLogger(SearchTable.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }
@@ -360,4 +445,6 @@ public class SearchTable extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
     // End of variables declaration//GEN-END:variables
+
+   
 }
